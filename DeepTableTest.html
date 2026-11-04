@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Deep Table XPath Test</title>
+  <link rel="stylesheet" href="assets/common.css">
+  <style>
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 10px 20px; }
+    .cardLike { background: #fff; border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); margin-bottom: 16px; }
+    .section-label { font-weight: bold; margin-bottom: 6px; }
+    .small { font-size: 12px; color: #666; }
+
+    /* 課題エリア */
+    .missions { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .mission { border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+    .mission-title { font-weight: bold; margin-bottom: 6px; color: var(--primary); }
+    .instruction { font-weight: bold; white-space: pre-line; margin: 6px 0 10px; line-height: 1.6; }
+    .answer-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .answer-row input[type="text"] { flex: 1; min-width: 160px; }
+    .judge { margin-top: 10px; font-weight: bold; min-height: 1.4em; }
+    .judge.ok { color: var(--ok); }
+    .judge.ng { color: var(--ng); }
+    .toolbar { display: flex; gap: 10px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+    details.hint { margin-top: 12px; font-size: 13px; }
+    details.hint summary { cursor: pointer; color: var(--primary); }
+    details.hint pre {
+      background: #f4f5f8;
+      padding: 10px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    /* レイアウト用の多重ネストtable */
+    table.layout { width: 100%; border-collapse: collapse; }
+    table.layout > tbody > tr > td { border: 1px solid #ddd; padding: 8px; vertical-align: top; }
+
+    /* 拠点・部署の見出し */
+    .site-name { font-weight: bold; font-size: 1.05rem; color: var(--primary); }
+    .dept-name { font-weight: bold; }
+
+    /* 社員テーブル */
+    table.member { width: 100%; border-collapse: collapse; background: #fff; }
+    table.member th, table.member td { border: 1px solid #ccc; padding: 5px 8px; font-size: 14px; }
+    table.member th { background: #fafafa; text-align: left; }
+    table.member td:last-child { width: 80px; text-align: center; }
+    table.member button { padding: 3px 12px; font-size: 13px; }
+    tr.clicked td { background: #fff7d6; }
+
+    @media (max-width: 800px) {
+      .missions { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="link_container"><a href="index.html">ホームページへ戻る</a></div>
+    <h1 class="page-title" id="pageTitle">DeepTableTest<span class="page-subtitle">深い階層のテーブルから要素を特定</span></h1>
+  </header>
+
+  <p class="page-explain">
+    tableレイアウトを多重にネストし、最深部に「拠点 ＞ 部署 ＞ 社員」の表を配置しています。<br>
+    ボタンはすべて同じ「選択」で、同じ氏名の社員が複数の部署にいます。<br>
+    上位の階層（拠点・部署）をたどって、指示された要素を特定してください。
+  </p>
+
+  <div class="container">
+    <!-- 課題 -->
+    <div class="cardLike">
+      <div class="missions">
+        <div class="mission" id="missionButton">
+          <div class="mission-title">課題１：ボタンをクリック</div>
+          <div class="instruction" id="instruction"></div>
+          <div class="judge" id="judgeResult" aria-live="polite"></div>
+        </div>
+
+        <div class="mission" id="missionValue">
+          <div class="mission-title">課題２：値を取得して入力</div>
+          <div class="instruction" id="instructionValue"></div>
+          <div class="answer-row">
+            <input type="text" id="answerInput" placeholder="社員番号を入力" autocomplete="off">
+            <button type="button" id="answerBtn">判定する</button>
+          </div>
+          <div class="judge" id="answerResult" aria-live="polite"></div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <button type="button" id="reloadBtn">リロード</button>
+        <span class="small">（課題がランダムに変わります。表の内容は常に同じです）</span>
+      </div>
+
+      <details class="hint">
+        <summary>ヒント（XPathの例）</summary>
+        <pre>// 拠点 → 部署 → 社員 の順に絞り込んで「選択」ボタンを取得
+//table[contains(@class,'site')][.//span[@class='site-name']='大阪支社']
+  //table[contains(@class,'dept')][.//span[@class='dept-name']='開発部']
+  //tr[td[2]='鈴木']//button
+
+// 同じ行の社員番号（1列目）を取得
+//table[contains(@class,'site')][.//span[@class='site-name']='大阪支社']
+  //table[contains(@class,'dept')][.//span[@class='dept-name']='開発部']
+  //tr[td[2]='鈴木']/td[1]</pre>
+      </details>
+    </div>
+
+    <!-- わざと深いtableネスト（レイアウト目的） -->
+    <div class="cardLike">
+      <table class="layout" aria-label="outer-layout">
+        <tr>
+          <td style="width: 200px;">
+            <div class="section-label">サイド（ダミー）</div>
+            <table class="layout" aria-label="sidebar-layout">
+              <tr><td>リンクA</td></tr>
+              <tr><td>リンクB</td></tr>
+              <tr><td>リンクC</td></tr>
+            </table>
+          </td>
+
+          <td>
+            <div class="section-label">メイン（ネスト開始）</div>
+            <table class="layout" aria-label="main-lv1">
+              <tr>
+                <td>
+                  <div class="section-label">ヘッダー（ダミー）</div>
+                  <table class="layout" aria-label="header-lv2">
+                    <tr>
+                      <td>固定表示: <span id="fixedText">XPATH TRAINING</span></td>
+                      <td>社員数: <span id="rowCountText"></span></td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+
+              <tr>
+                <td>
+                  <div class="section-label">コンテンツ（さらに深く）</div>
+                  <table class="layout" aria-label="content-lv2">
+                    <tr>
+                      <td>
+                        <div class="section-label">検索（ダミー）</div>
+                        <table class="layout" aria-label="search-lv3">
+                          <tr>
+                            <td><input type="text" placeholder="ここはダミーです" style="width:100%;" /></td>
+                            <td><button type="button" onclick="alert('ダミーです')">検索</button></td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>
+                        <div class="section-label">データ領域（最深部）</div>
+                        <table class="layout" aria-label="data-lv3">
+                          <tr>
+                            <td>
+                              <table class="layout" aria-label="data-lv4">
+                                <tr>
+                                  <!-- ここに「拠点 ＞ 部署 ＞ 社員」のtableをJSで生成 -->
+                                  <td id="deepArea"></td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+<script>
+  // ---------------------------------------------------------
+  // 固定データ（拠点 ＞ 部署 ＞ 社員）。同じ氏名が複数の部署に存在します。
+  // ---------------------------------------------------------
+  const DATA = [
+    { site: "東京本社", depts: [
+      { dept: "営業部", members: ["佐藤", "鈴木", "高橋", "田中"] },
+      { dept: "開発部", members: ["佐藤", "伊藤", "渡辺", "山本"] },
+      { dept: "総務部", members: ["中村", "鈴木", "小林", "加藤"] },
+    ]},
+    { site: "大阪支社", depts: [
+      { dept: "営業部", members: ["佐藤", "吉田", "山田", "田中"] },
+      { dept: "開発部", members: ["鈴木", "伊藤", "松本", "井上"] },
+      { dept: "総務部", members: ["佐藤", "木村", "林", "高橋"] },
+    ]},
+    { site: "福岡支社", depts: [
+      { dept: "営業部", members: ["清水", "鈴木", "山口", "田中"] },
+      { dept: "開発部", members: ["佐藤", "森", "池田", "渡辺"] },
+      { dept: "総務部", members: ["橋本", "伊藤", "石川", "高橋"] },
+    ]},
+  ];
+  const POSITIONS = ["部長", "課長", "主任", "一般"];
+
+  // 社員番号：拠点番号 + 部署番号 + 連番3桁（例：21003）
+  const empNo = (s, d, m) => `${s + 1}${d + 1}${String(m + 1).padStart(3, "0")}`;
+
+  // 全社員の一覧（課題作成用）
+  const ALL = [];
+  DATA.forEach((site, s) => site.depts.forEach((dept, d) => dept.members.forEach((name, m) => {
+    ALL.push({ site: site.site, dept: dept.dept, name, no: empNo(s, d, m) });
+  })));
+
+  // ---------------------------------------------------------
+  // 最深部のtableを生成（ボタンにidやdata属性は付けません）
+  // ---------------------------------------------------------
+  function buildTables() {
+    const html = DATA.map((site, s) => `
+      <table class="layout site">
+        <tr><td><span class="site-name">${site.site}</span></td></tr>
+        <tr><td>
+          ${site.depts.map((dept, d) => `
+          <table class="layout dept">
+            <tr><td><span class="dept-name">${dept.dept}</span></td></tr>
+            <tr><td>
+              <table class="member">
+                <thead><tr><th>社員番号</th><th>氏名</th><th>役職</th><th>操作</th></tr></thead>
+                <tbody>
+                  ${dept.members.map((name, m) => `
+                  <tr>
+                    <td>${empNo(s, d, m)}</td>
+                    <td>${name}</td>
+                    <td>${POSITIONS[m]}</td>
+                    <td><button type="button">選択</button></td>
+                  </tr>`).join("")}
+                </tbody>
+              </table>
+            </td></tr>
+          </table>`).join("")}
+        </td></tr>
+      </table>`).join("");
+    document.getElementById("deepArea").innerHTML = html;
+    document.getElementById("rowCountText").textContent = ALL.length;
+  }
+
+  // ---------------------------------------------------------
+  // 課題
+  // ---------------------------------------------------------
+  let targetButton = null;
+  let targetValue = null;
+
+  const pick = () => ALL[Math.floor(Math.random() * ALL.length)];
+  const describe = (t) => `拠点：${t.site}\n部署：${t.dept}\n氏名：${t.name}`;
+
+  function setJudge(id, text, ok) {
+    const el = document.getElementById(id);
+    el.textContent = text;
+    el.className = "judge" + (ok === undefined ? "" : ok ? " ok" : " ng");
+  }
+
+  function resetMissions() {
+    targetButton = pick();
+    do { targetValue = pick(); } while (targetValue === targetButton);
+
+    document.getElementById("instruction").textContent = `${describe(targetButton)}\nの「選択」ボタンをクリックしてください`;
+    document.getElementById("instructionValue").textContent = `${describe(targetValue)}\nの社員番号を入力してください`;
+    document.getElementById("answerInput").value = "";
+    setJudge("judgeResult", "");
+    setJudge("answerResult", "");
+    document.querySelectorAll("tr.clicked").forEach(tr => tr.classList.remove("clicked"));
+  }
+
+  // クリックされたボタンの位置（拠点・部署・氏名）をDOMからたどって判定
+  document.getElementById("deepArea").addEventListener("click", (e) => {
+    const btn = e.target.closest("table.member button");
+    if (!btn) return;
+
+    const tr = btn.closest("tr");
+    const clicked = {
+      site: tr.closest("table.site").querySelector(".site-name").textContent,
+      dept: tr.closest("table.dept").querySelector(".dept-name").textContent,
+      name: tr.cells[1].textContent,
+    };
+
+    document.querySelectorAll("tr.clicked").forEach(r => r.classList.remove("clicked"));
+    tr.classList.add("clicked");
+
+    const label = `${clicked.site} / ${clicked.dept} / ${clicked.name}`;
+    const ok = clicked.site === targetButton.site && clicked.dept === targetButton.dept && clicked.name === targetButton.name;
+    setJudge("judgeResult", ok ? `正解！（${label}）` : `不正解（クリックしたのは ${label}）`, ok);
+  });
+
+  function judgeValue() {
+    const v = document.getElementById("answerInput").value.trim();
+    if (v === "") return setJudge("answerResult", "入力してください", false);
+    const ok = v === targetValue.no;
+    setJudge("answerResult", ok ? "正解！" : "不正解", ok);
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    buildTables();
+    resetMissions();
+    document.getElementById("reloadBtn").addEventListener("click", resetMissions);
+    document.getElementById("answerBtn").addEventListener("click", judgeValue);
+    document.getElementById("answerInput").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") judgeValue();
+    });
+  });
+</script>
+</body>
+</html>

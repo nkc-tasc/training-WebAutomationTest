@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>レイアウト確認テスト（スクリーンショット用）</title>
+  <link rel="stylesheet" href="assets/common.css">
+  <style>
+    /* ページ全体を1画面に固定（外側はスクロールさせない） */
+    html, body { height: 100%; margin: 0; overflow: hidden; }
+
+    .page { height: 100%; display: flex; flex-direction: column; }
+    .topbar { flex: 0 0 auto; }
+
+    /* 4領域（2x2） */
+    .grid {
+      flex: 1 1 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 12px;
+      padding: 12px;
+      box-sizing: border-box;
+      min-height: 0;
+    }
+
+    .panel {
+      background: #fff;
+      border-radius: 12px;
+      padding: 14px;
+      box-sizing: border-box;
+      border: 1px solid rgba(0,0,0,0.08);
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .panel-title { font-weight: bold; margin-bottom: 8px; }
+    .panel-body { flex: 1 1 auto; min-height: 0; }
+
+    /* 右上：入力行 */
+    .input-row { display: flex; gap: 10px; align-items: center; }
+    .input-row input[type="text"] { flex: 1; }
+
+    /* 右下：テーブルはこの領域内だけスクロール */
+    .table-wrap {
+      border: 1px solid rgba(0,0,0,0.12);
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      height: 100%;
+      background: #fff;
+    }
+    .table-scroll { overflow: auto; min-height: 0; flex: 1 1 auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+    }
+    table th, table td {
+      height: 36px;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+      padding: 8px 10px;
+      text-align: left;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      vertical-align: middle;
+    }
+    th { position: sticky; top: 0; background: #fafafa; z-index: 1; }
+
+    /* カラム幅（スクショ比較向けに固定） */
+    .col-id { width: 90px; }
+    .col-text { width: auto; }
+    .col-p1 { width: 90px; text-align: center; }
+
+    .lb-footer { margin-top: auto; display: flex; justify-content: center; }
+    .hint { color: #555; line-height: 1.6; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="topbar">
+      <header class="site-header">
+        <div class="link_container"><a href="index.html">ホームページへ戻る</a></div>
+        <h1 class="page-title" id="pageTitle">LayoutScreenshotTest<span class="page-subtitle">レイアウトのスクリーンショット確認</span></h1>
+      </header>
+    </div>
+
+    <div class="grid">
+      <!-- 左上 -->
+      <section class="panel" id="panel-lt">
+        <div class="panel-title">左上</div>
+        <div class="panel-body hint">このページではレイアウト確認を行うためのテストページです。</div>
+      </section>
+
+      <!-- 右上 -->
+      <section class="panel" id="panel-rt">
+        <div class="panel-title">右上</div>
+        <div class="panel-body">
+          <div class="input-row">
+            <input id="inputText" type="text" placeholder="ここに入力して追加" autocomplete="off" />
+            <button id="addBtn" type="button">追加</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 左下 -->
+      <section class="panel" id="panel-lb">
+        <div class="panel-title">左下</div>
+        <div class="panel-body hint">右上領域に入力を行いボタンを押下すると右下領域に情報が追加されます。下のボタンを押すとテーブルをリセットできます。</div>
+        <div class="lb-footer">
+          <button id="resetBtn" class="reset-btn" type="button">テーブルをリセット</button>
+        </div>
+      </section>
+
+      <!-- 右下 -->
+      <section class="panel" id="panel-rb">
+        <div class="panel-title">右下</div>
+        <div class="panel-body">
+          <div class="table-wrap">
+            <div class="table-scroll">
+              <table aria-label="result-table">
+                <thead>
+                  <tr>
+                    <th class="col-id">id</th>
+                    <th class="col-text">text</th>
+                    <th class="col-p1">param1</th>
+                  </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    let seq = 1;
+
+    const input = document.getElementById("inputText");
+    const addBtn = document.getElementById("addBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const tbody = document.getElementById("tableBody");
+
+    // id：0001スタートで4桁ゼロ埋め
+    const pad4 = (n) => String(n).padStart(4, "0");
+
+    // param1：〇 or × をランダム
+    const randomMaruBatsu = () => (Math.random() < 0.5 ? "〇" : "×");
+
+    function addRow(text) {
+      const tr = document.createElement("tr");
+      [["col-id", pad4(seq)], ["col-text", text], ["col-p1", randomMaruBatsu()]].forEach(([cls, val]) => {
+        const td = document.createElement("td");
+        td.className = cls;
+        td.textContent = val;
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+      seq += 1;
+    }
+
+    function resetTable() {
+      tbody.innerHTML = "";
+      seq = 1;
+      input.value = "";
+      input.focus();
+    }
+
+    addBtn.addEventListener("click", () => {
+      const value = input.value;
+      if (!value || value.trim() === "") return; // 空入力は追加しない
+      addRow(value);
+      input.value = "";
+      input.focus();
+    });
+
+    // Enterでも追加
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") addBtn.click();
+    });
+
+    resetBtn.addEventListener("click", resetTable);
+  </script>
+</body>
+</html>

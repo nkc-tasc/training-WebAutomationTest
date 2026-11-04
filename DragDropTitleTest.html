@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ドラッグ＆ドロップ（タイトル入れ替え）</title>
+  <link rel="stylesheet" href="assets/common.css">
+  <style>
+    .page { max-width: 1100px; margin: 0 auto; padding: 0 12px 20px; box-sizing: border-box; }
+
+    .cards {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      align-items: stretch;
+      flex-wrap: nowrap; /* 3枚横並びを維持 */
+    }
+
+    .card {
+      width: 300px;
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 12px;
+      padding: 14px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      min-height: 140px;
+      box-shadow: var(--shadow);
+    }
+
+    /* ドラッグ対象：タイトルバー */
+    .card-title {
+      font-weight: bold;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #fafafa;
+      border: 1px solid rgba(0,0,0,0.08);
+      cursor: grab;
+      user-select: none;
+      touch-action: none; /* タッチ操作でもスクロールさせずドラッグ */
+      margin-bottom: 10px;
+    }
+    .card-body { color: #666; font-size: 14px; line-height: 1.6; }
+
+    /* ドラッグ中の見た目 */
+    body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select: none; }
+    .dragging { opacity: 0.5; }
+    .drop-target { outline: 2px dashed rgba(39,60,117,0.6); outline-offset: 4px; }
+
+    .status-bar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #fff;
+      font-size: 14px;
+    }
+    #dragResult { text-align: center; margin-top: 12px; min-height: 1.5em; font-weight: bold; }
+    .hint { margin-top: 14px; text-align: center; font-size: 12px; color: #777; line-height: 1.6; }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="link_container"><a href="index.html">ホームページへ戻る</a></div>
+    <h1 class="page-title" id="pageTitle">DragDropTitleTest<span class="page-subtitle">ドラッグ＆ドロップで並べ替え</span></h1>
+  </header>
+
+  <p class="page-explain">
+    タイトル部分をドラッグ＆ドロップして、カードの順番を入れ替えられます。<br>
+    （ドラッグできるのは「タイトル」だけです。ドロップしたカードの位置へ移動します）
+  </p>
+
+  <div class="page">
+    <div class="cards" id="cards" data-order="1,2,3">
+      <div class="card" id="card-1" data-card="1" data-testid="card-1">
+        <div class="card-title" id="title-1" data-testid="card-title-1">タイトル１</div>
+        <div class="card-body">ここはカード１の本文（ダミー）です。</div>
+      </div>
+
+      <div class="card" id="card-2" data-card="2" data-testid="card-2">
+        <div class="card-title" id="title-2" data-testid="card-title-2">タイトル２</div>
+        <div class="card-body">ここはカード２の本文（ダミー）です。</div>
+      </div>
+
+      <div class="card" id="card-3" data-card="3" data-testid="card-3">
+        <div class="card-title" id="title-3" data-testid="card-title-3">タイトル３</div>
+        <div class="card-body">ここはカード３の本文（ダミー）です。</div>
+      </div>
+    </div>
+
+    <div class="status-bar">
+      <span class="badge">現在の並び：<span id="orderText" data-testid="order-text">1,2,3</span></span>
+      <button type="button" id="resetOrderBtn" class="secondary">並びをリセット</button>
+    </div>
+    <div id="dragResult" aria-live="polite"></div>
+
+    <div class="hint">
+      ※マウス／ポインター操作（mousedown → mousemove → mouseup）で動作するため、<br>
+      Playwright の dragTo() や Selenium の ActionChains.drag_and_drop() などでそのまま操作できます。
+    </div>
+  </div>
+
+  <script>
+    const container = document.getElementById("cards");
+    const orderText = document.getElementById("orderText");
+    const dragResult = document.getElementById("dragResult");
+    const INITIAL_ORDER = ["1", "2", "3"];
+
+    let draggedCard = null;
+
+    const getCards = () => Array.from(container.querySelectorAll(".card"));
+    const titleOf = (card) => card.querySelector(".card-title").textContent;
+
+    // 指定座標にあるカードを取得
+    function cardAt(x, y) {
+      const el = document.elementFromPoint(x, y);
+      return el ? el.closest("#cards .card") : null;
+    }
+
+    function clearDropTargets() {
+      container.querySelectorAll(".drop-target").forEach(el => el.classList.remove("drop-target"));
+    }
+
+    // 現在の並び順を画面と data-order 属性に反映
+    function updateOrder() {
+      const order = getCards().map(c => c.dataset.card).join(",");
+      container.dataset.order = order;
+      orderText.textContent = order;
+    }
+
+    // ドロップ先カードの位置へ移動（ドロップ座標に依存せず結果が一定）
+    //  ・左から右へ移動 → ドロップ先の後ろに挿入
+    //  ・右から左へ移動 → ドロップ先の前に挿入
+    function moveCard(card, target) {
+      const cards = getCards();
+      const from = cards.indexOf(card);
+      const to = cards.indexOf(target);
+      if (from < to) {
+        container.insertBefore(card, target.nextSibling);
+      } else {
+        container.insertBefore(card, target);
+      }
+      updateOrder();
+      dragResult.textContent = `${titleOf(card)} を ${titleOf(target)} の位置へ移動しました`;
+    }
+
+    function endDrag() {
+      if (draggedCard) draggedCard.classList.remove("dragging");
+      document.body.classList.remove("is-dragging");
+      clearDropTargets();
+      draggedCard = null;
+    }
+
+    // ドラッグ開始：タイトルの上でのみ
+    container.addEventListener("pointerdown", (e) => {
+      const title = e.target.closest(".card-title");
+      if (!title || e.button !== 0) return;
+      e.preventDefault(); // テキスト選択を防止
+      draggedCard = title.closest(".card");
+      draggedCard.classList.add("dragging");
+      document.body.classList.add("is-dragging");
+    });
+
+    // ドラッグ中：ドロップ先候補をハイライト
+    document.addEventListener("pointermove", (e) => {
+      if (!draggedCard) return;
+      const over = cardAt(e.clientX, e.clientY);
+      clearDropTargets();
+      if (over && over !== draggedCard) over.classList.add("drop-target");
+    });
+
+    // ドロップ
+    document.addEventListener("pointerup", (e) => {
+      if (!draggedCard) return;
+      const target = cardAt(e.clientX, e.clientY);
+      if (target && target !== draggedCard) moveCard(draggedCard, target);
+      endDrag();
+    });
+
+    document.addEventListener("pointercancel", endDrag);
+
+    // 並びをリセット
+    document.getElementById("resetOrderBtn").addEventListener("click", () => {
+      INITIAL_ORDER.forEach(no => container.appendChild(document.getElementById("card-" + no)));
+      updateOrder();
+      dragResult.textContent = "";
+    });
+  </script>
+</body>
+</html>

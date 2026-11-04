@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ユーザー一覧（固定値）</title>
+  <link rel="stylesheet" href="assets/common.css">
+  <style>
+    .container { max-width: 960px; margin: 24px auto; padding: 20px; background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background: #fafafa; }
+    td button { padding: 4px 12px; margin: 2px; }
+    .result { margin-top: 20px; }
+    .result label { display: block; margin-bottom: 4px; font-weight: bold; }
+    #resultBox { width: 100%; }
+    .instruction { margin-bottom: 15px; font-weight: bold; white-space: pre-line; }
+    .judge { margin-top: 10px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="link_container"><a href="index.html">ホームページへ戻る</a></div>
+    <h1 class="page-title" id="pageTitle">TableButtonSelect<span class="page-subtitle">条件に合う行のボタンを選択</span></h1>
+  </header>
+
+  <p class="page-explain">指示に表示された「所属部署」と「所在地」に一致する行の「選択」ボタンを押してください。「リロード」で指示が変わります。</p>
+
+  <div class="container">
+    <div class="instruction" id="instruction"></div>
+    <button onclick="resetInstruction()">リロード</button>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>ユーザー名</th>
+          <th>所属部署</th>
+          <th>所在地</th>
+          <th>ボタン</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <tr><td>12345678</td><td>ユーザー1</td><td>商品部</td><td>北海道</td><td><button onclick="showId('12345678')">選択</button></td></tr>
+        <tr><td>23456789</td><td>ユーザー2</td><td>開発部</td><td>北海道</td><td><button onclick="showId('23456789')">選択</button></td></tr>
+        <tr><td>34567890</td><td>ユーザー3</td><td>営業部</td><td>北海道</td><td><button onclick="showId('34567890')">選択</button></td></tr>
+        <tr><td>45678901</td><td>ユーザー4</td><td>技術部</td><td>北海道</td><td><button onclick="showId('45678901')">選択</button></td></tr>
+        <tr><td>56789012</td><td>ユーザー5</td><td>商品部</td><td>東京都</td><td><button onclick="showId('56789012')">選択</button></td></tr>
+        <tr><td>67890123</td><td>ユーザー6</td><td>開発部</td><td>東京都</td><td><button onclick="showId('67890123')">選択</button></td></tr>
+        <tr><td>78901234</td><td>ユーザー7</td><td>営業部</td><td>東京都</td><td><button onclick="showId('78901234')">選択</button></td></tr>
+        <tr><td>89012345</td><td>ユーザー8</td><td>技術部</td><td>東京都</td><td><button onclick="showId('89012345')">選択</button></td></tr>
+        <tr><td>90123456</td><td>ユーザー9</td><td>商品部</td><td>沖縄県</td><td><button onclick="showId('90123456')">選択</button></td></tr>
+        <tr><td>01234567</td><td>ユーザー10</td><td>開発部</td><td>沖縄県</td><td><button onclick="showId('01234567')">選択</button></td></tr>
+      </tbody>
+    </table>
+    <div class="result">
+      <label for="resultBox">選択されたID</label>
+      <input id="resultBox" type="text" placeholder="ここにIDが表示されます" readonly />
+      <div id="judgeResult" class="judge"></div>
+    </div>
+  </div>
+
+<script>
+let targetId = null;
+
+function showId(id) {
+  document.getElementById('resultBox').value = id;
+  const judge = document.getElementById('judgeResult');
+  if (id === targetId) {
+    judge.textContent = '正解！';
+    judge.style.color = 'green';
+  } else {
+    judge.textContent = '不正解';
+    judge.style.color = 'red';
+  }
+}
+
+function resetInstruction() {
+  const rows = document.querySelectorAll('#tableBody tr');
+  const randomRow = rows[Math.floor(Math.random() * rows.length)];
+  const dept = randomRow.cells[2].textContent;
+  const loc = randomRow.cells[3].textContent;
+  targetId = randomRow.cells[0].textContent;
+  document.getElementById('instruction').textContent = `所属部署：${dept}\n所在地：${loc}\nのボタンを選んでください`;
+  document.getElementById('judgeResult').textContent = '';
+}
+
+document.addEventListener('DOMContentLoaded', resetInstruction);
+</script>
+</body>
+</html>

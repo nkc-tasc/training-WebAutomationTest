@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>フラットDOM テーブル風</title>
+  <link rel="stylesheet" href="assets/common.css">
+  <style>
+    .page { max-width: 1100px; margin: 0 auto; padding: 0 12px 20px; box-sizing: border-box; }
+    .panel { background: #fff; border: 1px solid rgba(0,0,0,0.08); border-radius: 12px; padding: 14px; box-shadow: var(--shadow); }
+    .badges { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
+
+    /* テーブルに見せるためのグリッド
+       1列目: checkbox / 2列目: id / 3列目: fruit / 4・5列目: 追加列 */
+    .flat-table {
+      display: grid;
+      grid-template-columns: 80px 120px 240px 160px 160px;
+      border: 1px solid rgba(0,0,0,0.15);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fff;
+      width: max-content;
+    }
+    .cell {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+      border-right: 1px solid rgba(0,0,0,0.08);
+      box-sizing: border-box;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      min-height: 42px;
+    }
+    .cell.header { background: #fafafa; font-weight: bold; position: sticky; top: 0; z-index: 1; }
+    .cell.end-col { border-right: none; }
+    .cell.end-row { border-bottom: none; }
+    .cell.center { justify-content: center; }
+    .cell.right { justify-content: flex-end; }
+
+    .table-scroll { overflow: auto; }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border: 1px solid rgba(0,0,0,0.15);
+      border-radius: 999px;
+      font-size: 12px;
+      background: #fafafa;
+      color: #444;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="link_container"><a href="index.html">ホームページへ戻る</a></div>
+    <h1 class="page-title" id="pageTitle">FlatDomTableTest<span class="page-subtitle">フラットDOMのテーブル操作</span></h1>
+  </header>
+
+  <p class="page-explain">
+    見た目はテーブル形式ですが、DOMツリー上は <b>1つのコンテナ直下に全セルが同階層</b>で並びます。<br>
+    （tr/tdは使わず、CSS Gridで表っぽく見せています）
+  </p>
+
+  <div class="page">
+    <div class="panel">
+      <div class="badges">
+        <span class="badge">列: Checkbox / ID / Fruit / Col4 / Col5</span>
+        <span class="badge">DOM: .flat-table 直下に .cell がずらっと並ぶ</span>
+      </div>
+
+      <div class="table-scroll">
+        <!-- ここ直下が全部同階層（セルがフラットに並ぶ） -->
+        <div class="flat-table" id="flatTable">
+          <div class="cell header center">選択</div>
+          <div class="cell header">ID</div>
+          <div class="cell header">果物</div>
+          <div class="cell header">列4</div>
+          <div class="cell header end-col">列5</div>
+
+          <div class="cell center"><input type="checkbox" aria-label="row1-check"></div>
+          <div class="cell">1</div>
+          <div class="cell">りんご</div>
+          <div class="cell">A-001</div>
+          <div class="cell end-col">在庫あり</div>
+
+          <div class="cell center"><input type="checkbox" aria-label="row2-check"></div>
+          <div class="cell">2</div>
+          <div class="cell">みかん</div>
+          <div class="cell">A-002</div>
+          <div class="cell end-col">在庫なし</div>
+
+          <div class="cell center"><input type="checkbox" aria-label="row3-check"></div>
+          <div class="cell">3</div>
+          <div class="cell">ぶどう</div>
+          <div class="cell">A-003</div>
+          <div class="cell end-col">在庫あり</div>
+
+          <div class="cell center"><input type="checkbox" aria-label="row4-check"></div>
+          <div class="cell">4</div>
+          <div class="cell">バナナ</div>
+          <div class="cell">A-004</div>
+          <div class="cell end-col">在庫あり</div>
+
+          <div class="cell center"><input type="checkbox" aria-label="row5-check"></div>
+          <div class="cell">5</div>
+          <div class="cell">メロン</div>
+          <div class="cell">A-005</div>
+          <div class="cell end-col">在庫なし</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 最後の行の下罫線を消す（DOMはフラットなので最終行のセルを計算して class を付与）
+    (function () {
+      const COLS = 5; // grid-template-columns の列数
+      const cells = Array.from(document.querySelectorAll("#flatTable .cell"));
+      const dataRows = Math.floor((cells.length - COLS) / COLS);
+      const lastRowStart = COLS + (dataRows - 1) * COLS;
+      for (let i = 0; i < COLS; i++) {
+        const c = cells[lastRowStart + i];
+        if (c) c.classList.add("end-row");
+      }
+    })();
+  </script>
+</body>
+</html>

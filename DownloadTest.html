@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>テキスト保存ページ</title>
+  <link rel="stylesheet" href="assets/common.css">
+  <style>
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    #textInput { width: 300px; }
+    .status {
+      text-align: center;
+      margin-top: 1.25rem;
+      min-height: 1.5em;
+      font-weight: bold;
+    }
+    .status.ok { color: var(--ok); }
+    .status.ng { color: var(--ng); }
+    .note {
+      max-width: 640px;
+      margin: 2rem auto;
+      padding: 0 16px;
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="link_container"><a href="index.html">ホームページへ戻る</a></div>
+    <h1 class="page-title" id="pageTitle">DownloadTest<span class="page-subtitle">名前を付けてテキストを保存</span></h1>
+  </header>
+
+  <p class="page-explain">テキストボックスにテキストを入力後「保存」ボタンをクリックすると、「名前を付けて保存」ダイアログが開きます。<br>保存先とファイル名（初期値：output.txt）を指定して保存してください。</p>
+
+  <div class="container">
+    <input type="text" id="textInput" placeholder="ここに入力してください">
+    <button id="saveBtn" type="button" onclick="downloadText()">保存</button>
+    <button id="directDownloadBtn" type="button" class="secondary" onclick="directDownload()">ダイアログなしで保存</button>
+  </div>
+
+  <div id="statusText" class="status" aria-live="polite"></div>
+
+  <div class="note">
+    ・「保存」：OS標準の「名前を付けて保存」ダイアログを表示します（Chrome / Edge）。ダイアログ非対応のブラウザでは通常のダウンロードになります。<br>
+    ・「ダイアログなしで保存」：従来どおり output.txt を直接ダウンロードします（Playwright の download イベント確認などに使用）。
+  </div>
+
+  <script>
+    const DEFAULT_FILE_NAME = "output.txt";
+
+    function setStatus(message, type) {
+      const el = document.getElementById("statusText");
+      el.textContent = message;
+      el.className = "status" + (type ? " " + type : "");
+    }
+
+    function getText() {
+      const text = document.getElementById("textInput").value;
+      if (!text) {
+        alert("テキストを入力してください");
+        return null;
+      }
+      return text;
+    }
+
+    // 従来方式：<a download> による直接ダウンロード
+    function anchorDownload(text) {
+      const blob = new Blob([text], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = DEFAULT_FILE_NAME;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    // 「保存」ボタン：名前を付けて保存ダイアログを表示
+    async function downloadText() {
+      const text = getText();
+      if (text === null) return;
+
+      if (!("showSaveFilePicker" in window)) {
+        anchorDownload(text);
+        setStatus("このブラウザは保存ダイアログに対応していないため、" + DEFAULT_FILE_NAME + " をダウンロードしました。", "ok");
+        return;
+      }
+
+      try {
+        const handle = await window.showSaveFilePicker({
+          suggestedName: DEFAULT_FILE_NAME,
+          types: [{ description: "テキストファイル", accept: { "text/plain": [".txt"] } }],
+        });
+        const writable = await handle.createWritable();
+        await writable.write(new Blob([text], { type: "text/plain" }));
+        await writable.close();
+        setStatus("保存しました：" + handle.name, "ok");
+      } catch (e) {
+        if (e.name === "AbortError") {
+          setStatus("保存をキャンセルしました。", "ng");
+        } else {
+          setStatus("保存に失敗しました：" + e.message, "ng");
+        }
+      }
+    }
+
+    // 「ダイアログなしで保存」ボタン
+    function directDownload() {
+      const text = getText();
+      if (text === null) return;
+      anchorDownload(text);
+      setStatus(DEFAULT_FILE_NAME + " をダウンロードしました。", "ok");
+    }
+  </script>
+</body>
+</html>

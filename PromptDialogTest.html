@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>入力ダイアログ練習</title>
+  <link rel="stylesheet" href="assets/common.css">
+  <style>
+    .container { display: flex; justify-content: center; margin-top: 2rem; }
+    main { max-width: 600px; margin: 0 auto; padding: 2rem 16px; }
+    .card { background: #fff; border-radius: 12px; padding: 2rem; text-align: center; box-shadow: var(--shadow); }
+    .card-label { font-weight: bold; margin-bottom: .5rem; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="link_container"><a href="index.html">ホームページへ戻る</a></div>
+    <h1 class="page-title" id="pageTitle">PromptDialogTest<span class="page-subtitle">入力ダイアログ（prompt）の操作</span></h1>
+  </header>
+
+  <p class="page-explain">ボタンを押すとブラウザの入力ダイアログが開きます。OKで入力内容を表示、キャンセルで何も変更しません。</p>
+
+  <div class="container">
+    <button id="openPromptBtn" type="button">入力ダイアログを開く</button>
+  </div>
+
+  <main>
+    <div class="card" id="resultCard">
+      <div class="card-label">入力結果</div>
+      <div id="resultText">（まだ入力はありません）</div>
+    </div>
+  </main>
+
+  <script>
+    // ① クリックでブラウザの入力ダイアログを表示
+    // ② OK の場合、入力テキストを画面に表示（空文字もそのまま表示）
+    // ③ キャンセルの場合、何もせず戻る
+    document.getElementById('openPromptBtn').addEventListener('click', () => {
+      const value = window.prompt('テキストを入力してください');
+      if (value === null) return;
+      document.getElementById('resultText').textContent = value;
+    });
+  </script>
+</body>
+</html>

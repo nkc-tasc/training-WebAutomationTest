@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ホームページ</title>
+  <link rel="stylesheet" href="assets/common.css">
+  <style>
+    .card-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+      max-width: 960px;
+      margin: 24px auto;
+      padding: 0 16px;
+    }
+    .card {
+      position: relative;
+      background: #fff;
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: var(--shadow);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    }
+    .card a {
+      text-decoration: none;
+      color: var(--primary);
+      font-size: 1.15rem;
+      font-weight: bold;
+      word-break: break-all;
+    }
+    /* カード全体をクリック可能にする */
+    .card a::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+    }
+    .card-desc {
+      margin: 0.5rem 0 0;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <h1 class="page-title" id="pageTitle">テストページホーム画面</h1>
+  </header>
+
+  <main>
+    <div class="card-container">
+      <div class="card"><a href="TableButtonSelect.html">TableButtonSelect</a><p class="card-desc">条件に合う行のボタンを選択</p></div>
+      <div class="card"><a href="DownloadTest.html">DownloadTest</a><p class="card-desc">名前を付けてテキストを保存</p></div>
+      <div class="card"><a href="RegexTraining.html">RegexTraining</a><p class="card-desc">正規表現で受注番号を抽出</p></div>
+      <div class="card"><a href="PromptDialogTest.html">PromptDialogTest</a><p class="card-desc">入力ダイアログ（prompt）の操作</p></div>
+      <div class="card"><a href="AutoUpdateTest.html">AutoUpdateTest</a><p class="card-desc">2秒後の自動画面遷移</p></div>
+      <div class="card"><a href="ProgressTest.html">ProgressTest</a><p class="card-desc">読み込み完了までの待機</p></div>
+      <div class="card"><a href="SuggestTest.html">SuggestTest</a><p class="card-desc">サジェスト候補からの選択</p></div>
+      <div class="card"><a href="LayoutScreenshotTest.html">LayoutScreenshotTest</a><p class="card-desc">レイアウトのスクリーンショット確認</p></div>
+      <div class="card"><a href="DragDropTitleTest.html">DragDropTitleTest</a><p class="card-desc">ドラッグ＆ドロップで並べ替え</p></div>
+      <div class="card"><a href="DivScreenshotColorTest.html">DivScreenshotColorTest</a><p class="card-desc">DIVのスクショ比較（色変更）</p></div>
+      <div class="card"><a href="FlatDomTableTest.html">FlatDomTableTest</a><p class="card-desc">フラットDOMのテーブル操作</p></div>
+      <div class="card"><a href="DeepTableTest.html">DeepTableTest</a><p class="card-desc">深い階層のテーブルから要素を特定</p></div>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Regex Training</title>
+  <link rel="stylesheet" href="assets/common.css">
+  <style>
+    .regex-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 0 16px 2rem;
+    }
+    .block {
+      background: #fff;
+      border-radius: 12px;
+      padding: 1.5rem 2rem;
+      box-shadow: var(--shadow);
+      text-align: center;
+      width: min(680px, 92vw);
+      box-sizing: border-box;
+    }
+    .title { font-size: 1.15rem; font-weight: bold; margin-bottom: .5rem; }
+    .display {
+      font-size: 1.4rem;
+      font-weight: bold;
+      margin: .25rem 0 1rem;
+      letter-spacing: .05em;
+      user-select: text;
+    }
+    .row { display: flex; justify-content: center; align-items: center; gap: .75rem; flex-wrap: wrap; }
+    .row input[type="text"] { width: 300px; }
+    .result { margin-top: .75rem; font-weight: bold; min-height: 1.2em; }
+    .ok { color: var(--ok); }
+    .ng { color: var(--ng); }
+    .toolbar { display: flex; justify-content: center; gap: .75rem; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="link_container"><a href="index.html">ホームページへ戻る</a></div>
+    <h1 class="page-title" id="pageTitle">RegexTraining<span class="page-subtitle">正規表現で受注番号を抽出</span></h1>
+  </header>
+
+  <p class="page-explain">表示された文章から受注番号を抽出して入力し、「判定する」を押してください（Enterキーでも判定できます）。「更新」で番号が変わります。</p>
+
+  <main>
+    <div class="regex-container">
+      <!-- 数字8桁 -->
+      <section class="block" id="block-numeric">
+        <div class="title">① 数字8桁を抽出</div>
+        <div class="display" id="display-numeric">受注番号はXXXXXXXXです。</div>
+        <div class="row">
+          <input id="input-numeric" type="text" autocomplete="off" placeholder="抽出した8桁の数字を入力">
+          <button id="btn-check-numeric">判定する</button>
+        </div>
+        <div class="result" id="result-numeric" aria-live="polite"></div>
+      </section>
+
+      <!-- 英数字8桁 -->
+      <section class="block" id="block-alnum">
+        <div class="title">② 英数字8桁を抽出</div>
+        <div class="display" id="display-alnum">受注番号はYYYYYYYYです。</div>
+        <div class="row">
+          <input id="input-alnum" type="text" autocomplete="off" placeholder="抽出した英数字8桁を入力">
+          <button id="btn-check-alnum">判定する</button>
+        </div>
+        <div class="result" id="result-alnum" aria-live="polite"></div>
+      </section>
+
+      <!-- 英数字8〜10桁 -->
+      <section class="block" id="block-alnum-var">
+        <div class="title">③ 英数字8〜10桁を抽出</div>
+        <div class="display" id="display-alnum-var">受注番号はZZZZZZZZです。</div>
+        <div class="row">
+          <input id="input-alnum-var" type="text" autocomplete="off" placeholder="抽出した英数字8〜10桁を入力">
+          <button id="btn-check-alnum-var">判定する</button>
+        </div>
+        <div class="result" id="result-alnum-var" aria-live="polite"></div>
+      </section>
+
+      <div class="toolbar">
+        <button id="btn-refresh">更新</button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const ALNUM_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+    // 数字8桁を生成（ゼロ埋め）
+    function generateNumericId() {
+      return String(Math.floor(Math.random() * 1e8)).padStart(8, '0');
+    }
+
+    // 指定桁数の英数字を生成
+    function generateAlnum(length) {
+      let s = '';
+      for (let i = 0; i < length; i++) s += ALNUM_CHARS[Math.floor(Math.random() * ALNUM_CHARS.length)];
+      return s;
+    }
+
+    // 英数字8桁を生成
+    function generateAlnumId() {
+      return generateAlnum(8);
+    }
+
+    // 英数字8〜10桁を生成
+    function generateAlnumVarId() {
+      return generateAlnum(Math.floor(Math.random() * 3) + 8);
+    }
+
+    // 現在表示中の値を取り出す
+    function getCurrentValue(displayId) {
+      const text = document.getElementById(displayId).innerText;
+      const m = text.match(/受注番号は(.+?)です。/);
+      return m ? m[1] : '';
+    }
+
+    const BLOCKS = [
+      { input: 'input-numeric',   display: 'display-numeric',   result: 'result-numeric',   btn: 'btn-check-numeric',   gen: generateNumericId },
+      { input: 'input-alnum',     display: 'display-alnum',     result: 'result-alnum',     btn: 'btn-check-alnum',     gen: generateAlnumId },
+      { input: 'input-alnum-var', display: 'display-alnum-var', result: 'result-alnum-var', btn: 'btn-check-alnum-var', gen: generateAlnumVarId },
+    ];
+
+    function resetResult(resultId) {
+      const el = document.getElementById(resultId);
+      el.textContent = '';
+      el.classList.remove('ok', 'ng');
+    }
+
+    // 文の更新
+    function renderNewValues() {
+      BLOCKS.forEach(b => {
+        document.getElementById(b.display).innerText = `受注番号は${b.gen()}です。`;
+        document.getElementById(b.input).value = '';
+        resetResult(b.result);
+      });
+    }
+
+    // 判定処理
+    function judge(inputId, displayId, resultId) {
+      const inputVal = document.getElementById(inputId).value.trim();
+      const answer = getCurrentValue(displayId);
+      const resultEl = document.getElementById(resultId);
+      resultEl.classList.remove('ok', 'ng');
+
+      if (inputVal === '') {
+        resultEl.textContent = '入力してください';
+        resultEl.classList.add('ng');
+        return;
+      }
+
+      if (inputVal === answer) {
+        resultEl.textContent = '正解';
+        resultEl.classList.add('ok');
+      } else {
+        resultEl.textContent = '不正解';
+        resultEl.classList.add('ng');
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderNewValues();
+      document.getElementById('btn-refresh').addEventListener('click', renderNewValues);
+
+      BLOCKS.forEach(b => {
+        const run = () => judge(b.input, b.display, b.result);
+        document.getElementById(b.btn).addEventListener('click', run);
+        // Enterキー対応
+        document.getElementById(b.input).addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') run();
+        });
+      });
+    });
+  </script>
+</body>
+</html>

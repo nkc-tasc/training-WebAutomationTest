@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>読み込みプログレス表示テスト</title>
+  <link rel="stylesheet" href="assets/common.css">
+  <style>
+    main { max-width: 600px; margin: 0 auto; padding: 2rem 16px; }
+    .card { background: #fff; border-radius: 12px; padding: 2rem; text-align: center; box-shadow: var(--shadow); }
+    .card-label { font-weight: bold; margin-bottom: .5rem; }
+    .progress-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 0;
+    }
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 4px solid #ccc;
+      border-top-color: var(--primary);
+      animation: spin 1s linear infinite;
+      margin-bottom: 1rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="link_container"><a href="index.html">ホームページへ戻る</a></div>
+    <h1 class="page-title" id="pageTitle">ProgressTest<span class="page-subtitle">読み込み完了までの待機</span></h1>
+  </header>
+
+  <p class="page-explain">段階的な読み込みをシミュレートするページです。<br>最初にプログレスが表示され、5秒後に完了メッセージに切り替わります（プログレスのDOMは削除されます）。</p>
+
+  <main>
+    <div class="card">
+      <div class="card-label">ロード状態</div>
+
+      <!-- 読み込み中エリア -->
+      <div id="loadingArea" class="progress-wrapper">
+        <div class="spinner"></div>
+        <div>読み込み中です...</div>
+      </div>
+
+      <!-- 読み込み完了エリア（最初は非表示） -->
+      <div id="completeArea" class="progress-wrapper hidden">
+        <div>読み込みが完了しました。</div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    window.addEventListener("load", () => {
+      const loading = document.getElementById("loadingArea");
+      const complete = document.getElementById("completeArea");
+
+      // 5秒後にプログレスDOMを完全削除して完了メッセージを表示
+      setTimeout(() => {
+        loading.remove();
+        complete.classList.remove("hidden");
+      }, 5000);
+    });
+  </script>
+</body>
+</html>

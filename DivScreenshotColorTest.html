@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DIVスクショ比較（色変更）テスト</title>
+  <link rel="stylesheet" href="assets/common.css">
+  <style>
+    .page { max-width: 1100px; margin: 0 auto; padding: 0 16px 16px; box-sizing: border-box; }
+
+    /* 中央に撮影対象＋右に操作パネル */
+    .layout { display: grid; grid-template-columns: 1fr 340px; gap: 16px; align-items: start; }
+
+    /* 撮影対象領域（スクショ対象にしやすいよう固定サイズ） */
+    #captureBox {
+      width: 520px;
+      height: 220px;
+      margin: 0 auto;
+      background: rgb(255, 255, 255);
+      color: rgb(0, 0, 0);
+      border: 2px solid rgba(0,0,0,0.15);
+      border-radius: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: Arial, sans-serif;
+      font-size: 20px;
+      font-weight: bold;
+      box-sizing: border-box;
+    }
+
+    /* カラーコード表示（撮影対象の外に配置） */
+    .color-info {
+      width: 520px;
+      max-width: 100%;
+      margin: 16px auto 0;
+      border-collapse: collapse;
+      background: #fff;
+      font-size: 14px;
+      box-shadow: var(--shadow);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .color-info th, .color-info td { padding: 8px 12px; border-bottom: 1px solid rgba(0,0,0,0.08); text-align: left; }
+    .color-info tr:last-child th, .color-info tr:last-child td { border-bottom: none; }
+    .color-info thead th { background: #fafafa; font-size: 12px; color: #666; }
+    .color-info code { font-family: Consolas, "Courier New", monospace; font-size: 14px; }
+    .swatch {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 1px solid rgba(0,0,0,0.25);
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+
+    .panel { background: #fff; border: 1px solid rgba(0,0,0,0.08); border-radius: 12px; padding: 14px; box-sizing: border-box; box-shadow: var(--shadow); }
+    .panel h3 { margin: 0 0 10px; font-size: 16px; }
+    .group { border-top: 1px solid rgba(0,0,0,0.08); padding-top: 12px; margin-top: 12px; }
+    .group-label { font-weight: bold; margin-bottom: 8px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+    label { font-size: 12px; color: #666; display: block; margin-bottom: 4px; }
+    input[type="number"] { width: 100%; font-size: 14px; }
+    .panel button { width: 100%; }
+    .note { margin-top: 10px; font-size: 12px; color: #777; line-height: 1.5; }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      #captureBox { width: 100%; max-width: 520px; }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="link_container"><a href="index.html">ホームページへ戻る</a></div>
+    <h1 class="page-title" id="pageTitle">DivScreenshotColorTest<span class="page-subtitle">DIVのスクショ比較（色変更）</span></h1>
+  </header>
+
+  <p class="page-explain">
+    中央の枠（DIV）をスクリーンショット撮影し、画像比較する実験用ページです。<br>
+    右の操作パネルで「背景色」「文字色」をRGBで変更できます。<br>
+    現在の色は枠の下にカラーコード（HEX / RGB）でも表示されるため、要素の値を取得して検証することもできます。
+  </p>
+
+  <div class="page">
+    <div class="layout">
+      <div class="capture-col">
+        <!-- 撮影対象のDIV（現在の色を data 属性にも保持） -->
+        <div id="captureBox" data-bg-color="#FFFFFF" data-text-color="#000000">この文字列はテストです</div>
+
+        <!-- 現在のカラーコード -->
+        <table class="color-info" id="colorInfo" aria-label="color-info">
+          <thead>
+            <tr><th>項目</th><th>HEX</th><th>RGB</th></tr>
+          </thead>
+          <tbody>
+            <tr id="bgColorRow">
+              <th>背景色</th>
+              <td><span class="swatch" id="bgSwatch"></span><code id="bgColorHex">#FFFFFF</code></td>
+              <td><code id="bgColorRgb">rgb(255, 255, 255)</code></td>
+            </tr>
+            <tr id="textColorRow">
+              <th>文字色</th>
+              <td><span class="swatch" id="textSwatch"></span><code id="textColorHex">#000000</code></td>
+              <td><code id="textColorRgb">rgb(0, 0, 0)</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 操作パネル -->
+      <aside class="panel">
+        <h3>色変更パネル（RGB）</h3>
+
+        <div class="group">
+          <div class="group-label">背景色</div>
+          <div class="row">
+            <div><label for="bgR">R (0-255)</label><input id="bgR" type="number" min="0" max="255" value="255"></div>
+            <div><label for="bgG">G (0-255)</label><input id="bgG" type="number" min="0" max="255" value="255"></div>
+            <div><label for="bgB">B (0-255)</label><input id="bgB" type="number" min="0" max="255" value="255"></div>
+          </div>
+          <button id="applyBgBtn" type="button">背景色を反映</button>
+        </div>
+
+        <div class="group">
+          <div class="group-label">文字色</div>
+          <div class="row">
+            <div><label for="txR">R (0-255)</label><input id="txR" type="number" min="0" max="255" value="0"></div>
+            <div><label for="txG">G (0-255)</label><input id="txG" type="number" min="0" max="255" value="0"></div>
+            <div><label for="txB">B (0-255)</label><input id="txB" type="number" min="0" max="255" value="0"></div>
+          </div>
+          <button id="applyTextBtn" type="button">文字色を反映</button>
+        </div>
+
+        <div class="note">
+          ・RGBは0〜255の範囲で入力してください。<br>
+          ・反映ボタンを押すと中央のDIVに即時反映されます。<br>
+          ・現在の色は枠の下の表、または #captureBox の data 属性でも取得できます。
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    const captureBox = document.getElementById("captureBox");
+
+    function clamp255(v) {
+      const n = Number(v);
+      if (Number.isNaN(n)) return 0;
+      return Math.max(0, Math.min(255, Math.floor(n)));
+    }
+
+    // 入力値を0〜255に丸めて取得し、丸めた値を入力欄にも戻す
+    function readRGB(prefix) {
+      return ["R", "G", "B"].map(c => {
+        const el = document.getElementById(prefix + c);
+        const v = clamp255(el.value);
+        el.value = v;
+        return v;
+      });
+    }
+
+    const toRgbText = ([r, g, b]) => `rgb(${r}, ${g}, ${b})`;
+    const toHex = (rgb) => "#" + rgb.map(v => v.toString(16).padStart(2, "0")).join("").toUpperCase();
+
+    // カラーコード表示を更新（type: "bg" or "text"）
+    function updateColorInfo(type, rgb) {
+      const hex = toHex(rgb);
+      const rgbText = toRgbText(rgb);
+      document.getElementById(type + "ColorHex").textContent = hex;
+      document.getElementById(type + "ColorRgb").textContent = rgbText;
+      document.getElementById(type + "Swatch").style.backgroundColor = rgbText;
+      captureBox.dataset[type === "bg" ? "bgColor" : "textColor"] = hex;
+    }
+
+    document.getElementById("applyBgBtn").addEventListener("click", () => {
+      const rgb = readRGB("bg");
+      captureBox.style.backgroundColor = toRgbText(rgb);
+      updateColorInfo("bg", rgb);
+    });
+
+    document.getElementById("applyTextBtn").addEventListener("click", () => {
+      const rgb = readRGB("tx");
+      captureBox.style.color = toRgbText(rgb);
+      updateColorInfo("text", rgb);
+    });
+
+    // 初期表示
+    updateColorInfo("bg", readRGB("bg"));
+    updateColorInfo("text", readRGB("tx"));
+  </script>
+</body>
+</html>
