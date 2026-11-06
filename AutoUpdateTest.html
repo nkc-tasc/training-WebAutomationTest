@@ -6,16 +6,20 @@
   <title>自動更新テスト</title>
   <link rel="stylesheet" href="assets/common.css">
   <style>
-    main { max-width: 600px; margin: 0 auto; padding: 2rem 16px; }
+    main { max-width: 600px; margin: 0; padding: 0; }
     .card { background: #fff; border-radius: 12px; padding: 2rem; text-align: center; box-shadow: var(--shadow); }
     .card-label { font-weight: bold; margin-bottom: .5rem; }
   </style>
 </head>
 <body>
-  <header class="site-header">
-    <div class="link_container"><a href="index.html">ホームページへ戻る</a></div>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <script src="assets/site.js"></script>
+
+  <div class="content">
+  <div class="page-head">
     <h1 class="page-title" id="pageTitle">AutoUpdateTest<span class="page-subtitle">2秒後の自動画面遷移</span></h1>
-  </header>
+  </div>
 
   <p class="page-explain">このページは開くと2秒後にホーム画面に遷移します。</p>
 
@@ -32,5 +36,7 @@
       window.location.href = "index.html";
     }, 2000);
   </script>
+  </div>
+</div>
 </body>
 </html>

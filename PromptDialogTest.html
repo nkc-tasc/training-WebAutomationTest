@@ -6,17 +6,21 @@
   <title>入力ダイアログ練習</title>
   <link rel="stylesheet" href="assets/common.css">
   <style>
-    .container { display: flex; justify-content: center; margin-top: 2rem; }
-    main { max-width: 600px; margin: 0 auto; padding: 2rem 16px; }
+    .container { display: flex; justify-content: flex-start; margin: 0 0 1.5rem; }
+    main { max-width: 600px; margin: 0; padding: 0; }
     .card { background: #fff; border-radius: 12px; padding: 2rem; text-align: center; box-shadow: var(--shadow); }
     .card-label { font-weight: bold; margin-bottom: .5rem; }
   </style>
 </head>
 <body>
-  <header class="site-header">
-    <div class="link_container"><a href="index.html">ホームページへ戻る</a></div>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <script src="assets/site.js"></script>
+
+  <div class="content">
+  <div class="page-head">
     <h1 class="page-title" id="pageTitle">PromptDialogTest<span class="page-subtitle">入力ダイアログ（prompt）の操作</span></h1>
-  </header>
+  </div>
 
   <p class="page-explain">ボタンを押すとブラウザの入力ダイアログが開きます。OKで入力内容を表示、キャンセルで何も変更しません。</p>
 
@@ -41,5 +45,7 @@
       document.getElementById('resultText').textContent = value;
     });
   </script>
+  </div>
+</div>
 </body>
 </html>

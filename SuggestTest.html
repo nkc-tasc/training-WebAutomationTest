@@ -6,7 +6,7 @@
   <title>サジェスト入力テスト</title>
   <link rel="stylesheet" href="assets/common.css">
   <style>
-    main { max-width: 900px; margin: 0 auto; padding: 0 16px 2rem; }
+    main { max-width: 900px; margin: 0; padding: 0; }
     .card { background: #fff; border-radius: 12px; box-shadow: var(--shadow); }
     .suggest-container { padding: 2rem; }
     .section-label { font-weight: bold; margin-bottom: .5rem; }
@@ -41,10 +41,14 @@
   </style>
 </head>
 <body>
-  <header class="site-header">
-    <div class="link_container"><a href="index.html">ホームページへ戻る</a></div>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <script src="assets/site.js"></script>
+
+  <div class="content">
+  <div class="page-head">
     <h1 class="page-title" id="pageTitle">SuggestTest<span class="page-subtitle">サジェスト候補からの選択</span></h1>
-  </header>
+  </div>
 
   <p class="page-explain">テキストボックスに入力すると候補がサジェストされます。<br>サジェストをクリックして値を確定し、ボタンで下部に表示します（サジェストを選ばずにフォーカスを外すと入力はクリアされます）。</p>
 
@@ -156,5 +160,7 @@
       dropdown.classList.add("hidden");
     }
   </script>
+  </div>
+</div>
 </body>
 </html>

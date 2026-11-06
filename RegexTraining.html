@@ -9,9 +9,9 @@
     .regex-container {
       display: flex;
       flex-direction: column;
-      align-items: center;
+      align-items: flex-start;
       gap: 1.5rem;
-      padding: 0 16px 2rem;
+      padding: 0;
     }
     .block {
       background: #fff;
@@ -35,14 +35,18 @@
     .result { margin-top: .75rem; font-weight: bold; min-height: 1.2em; }
     .ok { color: var(--ok); }
     .ng { color: var(--ng); }
-    .toolbar { display: flex; justify-content: center; gap: .75rem; }
+    .toolbar { display: flex; justify-content: flex-start; gap: .75rem; }
   </style>
 </head>
 <body>
-  <header class="site-header">
-    <div class="link_container"><a href="index.html">ホームページへ戻る</a></div>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <script src="assets/site.js"></script>
+
+  <div class="content">
+  <div class="page-head">
     <h1 class="page-title" id="pageTitle">RegexTraining<span class="page-subtitle">正規表現で受注番号を抽出</span></h1>
-  </header>
+  </div>
 
   <p class="page-explain">表示された文章から受注番号を抽出して入力し、「判定する」を押してください（Enterキーでも判定できます）。「更新」で番号が変わります。</p>
 
@@ -176,5 +180,7 @@
       });
     });
   </script>
+  </div>
+</div>
 </body>
 </html>

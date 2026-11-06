@@ -8,15 +8,15 @@
   <style>
     .container {
       display: flex;
-      justify-content: center;
+      justify-content: flex-start;
       align-items: center;
       flex-wrap: wrap;
       gap: 1rem;
-      margin-top: 2rem;
+      margin-top: 0;
     }
     #textInput { width: 300px; }
     .status {
-      text-align: center;
+      text-align: left;
       margin-top: 1.25rem;
       min-height: 1.5em;
       font-weight: bold;
@@ -24,9 +24,9 @@
     .status.ok { color: var(--ok); }
     .status.ng { color: var(--ng); }
     .note {
-      max-width: 640px;
-      margin: 2rem auto;
-      padding: 0 16px;
+      max-width: 760px;
+      margin: 1.5rem 0 0;
+      padding: 0;
       font-size: 0.85rem;
       color: var(--muted);
       line-height: 1.7;
@@ -34,10 +34,14 @@
   </style>
 </head>
 <body>
-  <header class="site-header">
-    <div class="link_container"><a href="index.html">ホームページへ戻る</a></div>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <script src="assets/site.js"></script>
+
+  <div class="content">
+  <div class="page-head">
     <h1 class="page-title" id="pageTitle">DownloadTest<span class="page-subtitle">名前を付けてテキストを保存</span></h1>
-  </header>
+  </div>
 
   <p class="page-explain">テキストボックスにテキストを入力後「保存」ボタンをクリックすると、「名前を付けて保存」ダイアログが開きます。<br>保存先とファイル名（初期値：output.txt）を指定して保存してください。</p>
 
@@ -122,5 +126,7 @@
       setStatus(DEFAULT_FILE_NAME + " をダウンロードしました。", "ok");
     }
   </script>
+  </div>
+</div>
 </body>
 </html>

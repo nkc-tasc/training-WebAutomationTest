@@ -9,8 +9,11 @@
     /* ページ全体を1画面に固定（外側はスクロールさせない） */
     html, body { height: 100%; margin: 0; overflow: hidden; }
 
-    .page { height: 100%; display: flex; flex-direction: column; }
+    /* サイドバー＋本文を1画面に固定し、本文の残りを4分割する */
+    .app { height: 100%; min-height: 0; }
+    .page { height: 100vh; display: flex; flex-direction: column; padding: 20px 24px; }
     .topbar { flex: 0 0 auto; }
+    .topbar .page-head { margin-bottom: 12px; }
 
     /* 4領域（2x2） */
     .grid {
@@ -19,7 +22,7 @@
       grid-template-columns: 1fr 1fr;
       grid-template-rows: 1fr 1fr;
       gap: 12px;
-      padding: 12px;
+      padding: 0;
       box-sizing: border-box;
       min-height: 0;
     }
@@ -84,12 +87,15 @@
   </style>
 </head>
 <body>
-  <div class="page">
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <script src="assets/site.js"></script>
+
+  <div class="content page">
     <div class="topbar">
-      <header class="site-header">
-        <div class="link_container"><a href="index.html">ホームページへ戻る</a></div>
+      <div class="page-head">
         <h1 class="page-title" id="pageTitle">LayoutScreenshotTest<span class="page-subtitle">レイアウトのスクリーンショット確認</span></h1>
-      </header>
+      </div>
     </div>
 
     <div class="grid">
@@ -141,6 +147,7 @@
       </section>
     </div>
   </div>
+</div>
 
   <script>
     let seq = 1;

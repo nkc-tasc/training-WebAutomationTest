@@ -6,7 +6,7 @@
   <title>DIVスクショ比較（色変更）テスト</title>
   <link rel="stylesheet" href="assets/common.css">
   <style>
-    .page { max-width: 1100px; margin: 0 auto; padding: 0 16px 16px; box-sizing: border-box; }
+    .page { max-width: 1100px; margin: 0; padding: 0; box-sizing: border-box; }
 
     /* 中央に撮影対象＋右に操作パネル */
     .layout { display: grid; grid-template-columns: 1fr 340px; gap: 16px; align-items: start; }
@@ -15,7 +15,7 @@
     #captureBox {
       width: 520px;
       height: 220px;
-      margin: 0 auto;
+      margin: 0;
       background: rgb(255, 255, 255);
       color: rgb(0, 0, 0);
       border: 2px solid rgba(0,0,0,0.15);
@@ -33,7 +33,7 @@
     .color-info {
       width: 520px;
       max-width: 100%;
-      margin: 16px auto 0;
+      margin: 16px 0 0;
       border-collapse: collapse;
       background: #fff;
       font-size: 14px;
@@ -72,10 +72,14 @@
 </head>
 
 <body>
-  <header class="site-header">
-    <div class="link_container"><a href="index.html">ホームページへ戻る</a></div>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <script src="assets/site.js"></script>
+
+  <div class="content">
+  <div class="page-head">
     <h1 class="page-title" id="pageTitle">DivScreenshotColorTest<span class="page-subtitle">DIVのスクショ比較（色変更）</span></h1>
-  </header>
+  </div>
 
   <p class="page-explain">
     中央の枠（DIV）をスクリーンショット撮影し、画像比較する実験用ページです。<br>
@@ -190,5 +194,7 @@
     updateColorInfo("bg", readRGB("bg"));
     updateColorInfo("text", readRGB("tx"));
   </script>
+  </div>
+</div>
 </body>
 </html>

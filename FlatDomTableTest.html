@@ -6,7 +6,7 @@
   <title>フラットDOM テーブル風</title>
   <link rel="stylesheet" href="assets/common.css">
   <style>
-    .page { max-width: 1100px; margin: 0 auto; padding: 0 12px 20px; box-sizing: border-box; }
+    .page { max-width: 1100px; margin: 0; padding: 0; box-sizing: border-box; }
     .panel { background: #fff; border: 1px solid rgba(0,0,0,0.08); border-radius: 12px; padding: 14px; box-shadow: var(--shadow); }
     .badges { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
 
@@ -55,10 +55,14 @@
 </head>
 
 <body>
-  <header class="site-header">
-    <div class="link_container"><a href="index.html">ホームページへ戻る</a></div>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <script src="assets/site.js"></script>
+
+  <div class="content">
+  <div class="page-head">
     <h1 class="page-title" id="pageTitle">FlatDomTableTest<span class="page-subtitle">フラットDOMのテーブル操作</span></h1>
-  </header>
+  </div>
 
   <p class="page-explain">
     見た目はテーブル形式ですが、DOMツリー上は <b>1つのコンテナ直下に全セルが同階層</b>で並びます。<br>
@@ -128,5 +132,7 @@
       }
     })();
   </script>
+  </div>
+</div>
 </body>
 </html>

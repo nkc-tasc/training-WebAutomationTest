@@ -12,68 +12,126 @@
   --ok: #27ae60;
   --ng: #e74c3c;
   --radius: 10px;
-  --shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+  --sidebar-bg: #1e2a4a;
+  --sidebar-active: #2f4a8a;
+  --info-bg: #eef3fc;
 }
 
 body {
   margin: 0;
+  background: var(--bg);
   font-family: "Segoe UI", "Hiragino Sans", "Meiryo", sans-serif;
   background: var(--bg);
   color: var(--text);
 }
 
-/* ---------- 共通ヘッダー（ホームへのリンク＋ページ名） ---------- */
-.site-header {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 10px 20px;
-  background: var(--primary);
-  color: #fff;
-  min-height: 36px;
+/* =========================================================
+   テストページ：サイドバー＋本文の2カラム
+   ========================================================= */
+.app {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  min-height: 100vh;
 }
-.site-header .link_container a {
-  display: inline-block;
+
+/* ---------- 左サイドバー ---------- */
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  background: var(--sidebar-bg);
+  color: #cfd6ea;
+  padding-bottom: 24px;
+  box-sizing: border-box;
+}
+.sidebar-logo {
   color: #fff;
+  font-weight: bold;
+  font-size: 17px;
+  padding: 18px 20px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.sidebar-nav a {
+  display: block;
+  padding: 7px 20px;
+  color: #cfd6ea;
   text-decoration: none;
-  font-size: 0.9rem;
-  padding: 6px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 6px;
-  white-space: nowrap;
+  font-size: 14px;
+  border-left: 3px solid transparent;
 }
-.site-header .link_container a:hover {
-  background: rgba(255, 255, 255, 0.15);
+.sidebar-nav a:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: #fff;
+}
+.sidebar-nav a.is-current {
+  background: var(--sidebar-active);
+  color: #fff;
+  border-left-color: #6ea8ff;
+}
+/* ホームページへ戻る */
+.sidebar-nav .link_container {
+  padding: 12px 0 4px;
+}
+.sidebar-nav .nav-home::before {
+  content: "←";
+  margin-right: 8px;
+}
+.nav-cat {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: #8792b3;
+  padding: 16px 20px 6px;
+}
+
+/* ---------- 本文エリア ---------- */
+.content {
+  padding: 24px 32px 40px;
+  box-sizing: border-box;
+  min-width: 0;
+}
+.page-head {
+  margin-bottom: 16px;
 }
 .page-title {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: 24px;
   font-weight: bold;
   line-height: 1.3;
 }
 .page-subtitle {
-  margin-left: 10px;
-  font-size: 0.85rem;
+  display: block;
+  margin-top: 4px;
+  font-size: 15px;
   font-weight: normal;
-  opacity: 0.85;
+  color: var(--muted);
 }
 
 /* ---------- ページ説明 ---------- */
 .page-explain {
-  max-width: 900px;
-  margin: 20px auto;
-  padding: 0 16px;
-  text-align: center;
-  color: #555;
+  margin: 0 0 20px;
+  padding: 12px 16px;
+  background: var(--info-bg);
+  border-left: 4px solid var(--primary);
+  border-radius: 6px;
+  color: #3d4657;
   line-height: 1.7;
 }
 
-/* ---------- フッター ---------- */
-.site-footer {
-  text-align: center;
-  padding: 1rem;
-  font-size: 0.9rem;
-  color: var(--muted);
+/* 画面幅が狭い場合はサイドバーを上に */
+@media (max-width: 800px) {
+  .app {
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    position: static;
+    height: auto;
+    max-height: 40vh;
+  }
+  .content {
+    padding: 20px 16px 32px;
+  }
 }
 
 /* ---------- 共通フォーム部品 ---------- */
@@ -125,5 +183,5 @@ textarea {
 }
 
 .hidden {
-  display: none;
+  display: none !important;
 }
